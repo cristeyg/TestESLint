@@ -1,0 +1,16 @@
+---
+- hosts: webservers
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+    - name: Copy application artifact (example)
+      ansible.builtin.copy:
+        src: /path/to/your/artifact.jar # This path is relative to the Jenkins workspace
+        dest: /var/www/html/app.jar
+        mode: '0644'
+    - name: Restart application service (example)
+      ansible.builtin.service:
+        name: your-app-service
+        state: restarted
