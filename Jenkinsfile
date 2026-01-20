@@ -29,7 +29,4 @@ pipeline {
             }
         }
     }
-    post {
-        // Optional: Define post-build actions like notifications
-    }
 }
