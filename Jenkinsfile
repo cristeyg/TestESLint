@@ -22,7 +22,7 @@ pipeline {
                     // 'inventory' specifies the target hosts
                     // 'credentialsId' refers to the ID of the configured SSH credentials
                     ansiblePlaybook tool: 'ansible-tool',
-                                    playbook: 'deploy.yml',
+                                    playbook: 'infrastructure.yaml',
                                     inventory: 'cris/AnsibleDeplyment/host.ini', // e.g., 'hosts.ini'
                                     credentialsId: 'privatekey'
                 }

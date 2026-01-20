@@ -1,0 +1,47 @@
+---
+- name: Provision AWS Infrastructure
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Create a security group
+      amazon.aws.ec2_group:
+        name: webserver-sg
+        description: Security group for the web server
+        rules:
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 80
+            to_port: 80
+            cidr_ip: 0.0.0.0/0
+      register: sg_result
+
+    - name: Launch an EC2 instance
+      amazon.aws.ec2_instance:
+        name: AnsibleWebAppInstance
+        image_id: ami-0abcdef1234567890 # Replace with a valid AMI ID for your region (e.g., Ubuntu, Amazon Linux)
+        instance_type: t2.micro
+        security_group: "{{ sg_result.group_id }}"
+        key_name: Access # Replace with your existing AWS key pair name
+        tags:
+          Name: AnsibleWebApp
+      register: ec2_result
+    
+    - name: Wait for instance to be running and SSH to be available
+      ansible.builtin.wait_for:
+        host: "{{ ec2_result.instances[0].public_ip_address }}"
+        port: 22
+        state: started
+        timeout: 300
+      delegate_to: localhost
+
+    - name: Add new instance to Ansible in-memory inventory
+      ansible.builtin.add_host:
+        hostname: "{{ ec2_result.instances[0].public_ip_address }}"
+        groups: webservers
+        ansible_user: ubuntu # or ec2-user, depending on your AMI
+        ansible_ssh_private_key_file: Access.pem # Replace with path to your .pem file
+      changed_when: false

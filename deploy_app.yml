@@ -1,0 +1,24 @@
+---
+- name: Deploy application to webservers
+  hosts: webservers
+  become: true # Run tasks with sudo
+  tasks:
+    - name: Install Nginx
+      ansible.builtin.apt:
+        name: nginx
+        state: present
+        update_cache: yes
+      # Use 'yum' for RHEL/Amazon Linux AMIs
+
+    - name: Copy index.html file to web server
+      ansible.builtin.copy:
+        src: ./files/index.html
+        dest: /var/www/html/index.html
+        mode: '0644'
+      # Ensure you have a 'files' directory with an 'index.html' file locally
+
+    - name: Start and enable Nginx service
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
